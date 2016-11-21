@@ -27,6 +27,7 @@ export default class SlidesComponent extends React.Component {
     this.textOrImage = this.textOrImage.bind(this);
   }
 
+  // NOTE: this is a helper function for the linear stepper.
   handleNext () {
     const {stepIndex} = this.state;
     this.setState({
@@ -35,6 +36,7 @@ export default class SlidesComponent extends React.Component {
     });
   };
 
+  // NOTE: this is a helper function for the linear stepper.
   handlePrev () {
     const {stepIndex} = this.state;
     if (stepIndex > 0) {
@@ -42,9 +44,9 @@ export default class SlidesComponent extends React.Component {
     }
   };
 
+  // NOTE: this fuction return JSX for either lesson text or images.
   textOrImage (obj, index) {
     // NOTE: key of obj is either 'text' or 'img'
-    console.log(obj);
     if (obj.text) {
       return (
         <div>
@@ -59,17 +61,21 @@ export default class SlidesComponent extends React.Component {
       );
     }
   }
+
   render() {
-    const {finished, stepIndex} = this.state;
-    const contentStyle = {margin: '0 16px'};
+    const { finished, stepIndex } = this.state;
+    const { slides } = this.props;
+    const contentStyle = { margin: '0 16px' };
 
     let linearStepper;
 
-    if (this.props.slides.length) {
+    // NOTE: set linearStepper to the JSX for each slide only when the props update.
+    // NOTE: slides are deconstructed from this.props above.
+    if (slides.length) {
       linearStepper = (
         <Stepper activeStep={stepIndex}>
           {
-            this.props.slides.map((slide, index) => {
+            slides.map((slide, index) => {
               return (
                 <Step key={index}>
                   <StepLabel>{slide.title}</StepLabel>
@@ -78,8 +84,9 @@ export default class SlidesComponent extends React.Component {
             })
           }
         </Stepper>
-      )
+      );
     }
+
     return (
       <div style={{width: '100%', maxWidth: 700, margin: 'auto'}}>
 
@@ -98,7 +105,7 @@ export default class SlidesComponent extends React.Component {
         ) : (
           <div>
             {
-              this.props.slides.length && this.props.slides[stepIndex].slideContent.map((stuff, index) => {
+              slides.length && slides[stepIndex].slideContent.map((stuff, index) => {
                 return this.textOrImage(stuff, index);
               })
             }
@@ -110,7 +117,7 @@ export default class SlidesComponent extends React.Component {
                 style={{marginRight: 12}}
               />
               <RaisedButton
-                label={stepIndex === this.props.slides.length - 1 ? 'Finish' : 'Next'}
+                label={stepIndex === slides.length - 1 ? 'Finish' : 'Next'}
                 primary={true}
                 onClick={this.handleNext}
               />
