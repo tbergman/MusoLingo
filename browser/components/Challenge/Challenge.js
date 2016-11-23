@@ -14,14 +14,20 @@ export function updateColor(vexNotes){
   this.setState({vexNotes})
 }
 
-var vexNotes;
+var vexNotes, beams, stave, context, counter;
 
 export default class Challenge extends Component {
     constructor(){
       super()
       this.state = {
         numCorrect: null,
-        vexNotes: []
+        vexNotes: [
+          new Vex.Flow.StaveNote({clef: "treble", keys: ["c/4"], duration: "q" }),
+          new Vex.Flow.StaveNote({clef: "treble", keys: ["d/4"], duration: "q" }),
+          new Vex.Flow.StaveNote({clef: "treble", keys: ["d/4"], duration: "q" }),
+          new Vex.Flow.StaveNote({clef: "treble", keys: ["c/4"], duration: "8" }),
+          new Vex.Flow.StaveNote({clef: "treble", keys: ["c/4"], duration: "8" })
+        ]
       }
       pullScore = pullScore.bind(this);
       updateColor = updateColor.bind(this);
@@ -37,51 +43,48 @@ export default class Challenge extends Component {
       return `${this.state.numCorrect/totalNotes}%`;
     }
 
-    // pullScore(numCorrect) {
-    //   this.setState({numCorrect})
-    // }
-
     componentDidMount(){
+      console.log("COMP DIDMOUNT RUNNING")
       var VF = Vex.Flow;
       var div = document.getElementById("staff")
       var renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
 
       renderer.resize(500, 200);
-      var context = renderer.getContext();
+      context = renderer.getContext();
       context.setFont("Arial", 10, "").setBackgroundFillStyle("#eed");
 
-      var stave = new VF.Stave(10, 40, 400);
+      stave = new VF.Stave(10, 40, 400);
 
       stave.addClef("treble").addTimeSignature("4/4");
 
       stave.setContext(context).draw();
 
-      this.state.vexNotes = [
-        // A quarter-note C.
-        new VF.StaveNote({clef: "treble", keys: ["c/4"], duration: "q" }),
-
-        // A quarter-note D.
-        new VF.StaveNote({clef: "treble", keys: ["d/4"], duration: "q" }),
-
-        // A quarter-note rest. Note that the key (b/4) specifies the vertical position of the rest.
-        // new VF.StaveNote({clef: "treble", keys: ["b/4"], duration: "qr" }),
-        new VF.StaveNote({clef: "treble", keys: ["d/4"], duration: "q" }),
-
-        new VF.StaveNote({clef: "treble", keys: ["c/4"], duration: "8" }),
-        new VF.StaveNote({clef: "treble", keys: ["c/4"], duration: "8" })
-      ];
-
-      // notes.forEach(note => note.setStyle({strokeStyle: "blue", fillStyle: "blue"}))
-
-      // console.log(this.state.vexNotes, this.state.vexNotes[0].setStyle)
-
+      // this.state.vexNotes = [
+      //   // A quarter-note C.
+      //   new VF.StaveNote({clef: "treble", keys: ["c/4"], duration: "q" }),
+      //
+      //   // A quarter-note D.
+      //   new VF.StaveNote({clef: "treble", keys: ["d/4"], duration: "q" }),
+      //
+      //   // A quarter-note rest. Note that the key (b/4) specifies the vertical position of the rest.
+      //   // new VF.StaveNote({clef: "treble", keys: ["b/4"], duration: "qr" }),
+      //   new VF.StaveNote({clef: "treble", keys: ["d/4"], duration: "q" }),
+      //
+      //   new VF.StaveNote({clef: "treble", keys: ["c/4"], duration: "8" }),
+      //   new VF.StaveNote({clef: "treble", keys: ["c/4"], duration: "8" })
+      // ];
 
       var beams = VF.Beam.generateBeams(this.state.vexNotes);
 
-      this.state.vexNotes.forEach(note => note.setStyle({strokeStyle: "blue", fillStyle: "blue"}))
+      // this.state.vexNotes.forEach(note => note.setStyle({strokeStyle: "blue", fillStyle: "blue"}))
+
+      // this.state.vexNotes[0].setStyle({strokeStyle: "blue", fillStyle: "blue"})
 
       Vex.Flow.Formatter.FormatAndDraw(context, stave, this.state.vexNotes);
+
       beams.forEach(function(b) {b.setContext(context).draw()})
+
+      counter = 1;
 
       // Create a voice in 4/4 and add above notes
       // var voice = new VF.Voice({num_beats: 4,  beat_value: 4});
@@ -105,14 +108,18 @@ export default class Challenge extends Component {
         )
       }
 
+      if (counter === 1){
+        Vex.Flow.Formatter.FormatAndDraw(context, stave, this.state.vexNotes)
+        console.log("FORMATTED")
+      }
+
       // console.log("PROPS", this.props)
-      console.log("STATE", this.state)
+      // console.log("STATE", this.state)
 
         return (
         <div>
           <button type="button" name="button" id="startButton" onClick={() => startSequence(["C3", "D3", "D3", ["C3", "C3"]], 80, this.state.numCorrect, this.state.vexNotes)}>START</button>
           <button type="button" name="button" id="stopButton" onClick={stopSequence}>STOP</button>
-          <div id="circle"></div>
 
         {scoreCounter}
 
