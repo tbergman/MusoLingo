@@ -140,9 +140,6 @@ function rhythmicAccuracy(timePlayed, noteDuration){
     case 1:
       if (decimal >= 3.792 || decimal <= 0.208){
         noteHit(true)
-        // currentScore++;
-        // currentVisualNote.setStyle({strokeStyle: "green", fillStyle: "green"})
-        // updateColor(visualNotes)
         console.log("QUARTER NOTE HIT", decimal)
       } else {
         noteHit(false)
@@ -152,21 +149,15 @@ function rhythmicAccuracy(timePlayed, noteDuration){
     case 2:
       if (decimal >= 3.792 || decimal <= 0.208 || (decimal >= 1.792 && decimal <= 2.208) ){
         noteHit(true)
-        // currentScore++;
         console.log("EIGHTH NOTE HIT", decimal)
-        // currentVisualNote.setStyle({strokeStyle: "green", fillStyle: "green"});
-        // updateColor(visualNotes)
       } else {
         noteHit(false)
-        // currentVisualNote.setStyle({strokeStyle: "red", fillStyle: "red"});
-        // updateColor(visualNotes)
       }
       break;
     // triplets
     case 3:
       if (decimal >= 3.792 || decimal <= 0.208 || (decimal >= 1.125 && decimal <= 1.541) || (decimal >= 2.459 && decimal <= 2.875)){
         noteHit(true)
-        // currentScore++;
         console.log("TRIPLET NOTE HIT", decimal)
       } else {
         noteHit(true)
@@ -176,7 +167,6 @@ function rhythmicAccuracy(timePlayed, noteDuration){
     case 4:
       if (decimal >= 3.792 || decimal <= 0.208 || (decimal >= 0.792 && decimal <= 1.208) || (decimal >= 1.792 && decimal <= 2.208) || (decimal >= 2.792 && decimal <= 3.208)){
         noteHit(true)
-        // currentScore++;
         console.log("SIXTEENTH NOTE HIT", decimal);
       } else {
         noteHit(false)
@@ -209,7 +199,7 @@ function loopCreator(notes){
       currentBeat = Number(beat);
     }
 
-    // if no key was pressed for the previous note, turn that note red
+    // if no key was pressed for the previous note, turn that note red; MUST occur before new currentNote is defined
     if (currentNote.triggered === false && visualNoteCounter > 0){
       noteHit(false)
     }
@@ -218,7 +208,6 @@ function loopCreator(notes){
     currentNote.triggered = false;
     currentVisualNote = visualNotes[visualNoteCounter];
     visualNoteCounter++;
-
     // console.log(visualNoteCounter, currentVisualNote)
   }, notes, noteSequence[1]);
 

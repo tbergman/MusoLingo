@@ -59,21 +59,6 @@ export default class Challenge extends Component {
 
       stave.setContext(context).draw();
 
-      // this.state.vexNotes = [
-      //   // A quarter-note C.
-      //   new VF.StaveNote({clef: "treble", keys: ["c/4"], duration: "q" }),
-      //
-      //   // A quarter-note D.
-      //   new VF.StaveNote({clef: "treble", keys: ["d/4"], duration: "q" }),
-      //
-      //   // A quarter-note rest. Note that the key (b/4) specifies the vertical position of the rest.
-      //   // new VF.StaveNote({clef: "treble", keys: ["b/4"], duration: "qr" }),
-      //   new VF.StaveNote({clef: "treble", keys: ["d/4"], duration: "q" }),
-      //
-      //   new VF.StaveNote({clef: "treble", keys: ["c/4"], duration: "8" }),
-      //   new VF.StaveNote({clef: "treble", keys: ["c/4"], duration: "8" })
-      // ];
-
       var beams = VF.Beam.generateBeams(this.state.vexNotes);
 
       // this.state.vexNotes.forEach(note => note.setStyle({strokeStyle: "blue", fillStyle: "blue"}))
@@ -95,9 +80,7 @@ export default class Challenge extends Component {
       //
       // // Render voice
       // voice.draw(context, stave);
-
     }
-
 
     render() {
       let scoreCounter;
