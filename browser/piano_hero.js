@@ -1,7 +1,7 @@
 import tonal from 'tonal';
 import Tone from 'tone';
 import { polySynth, metronome } from './instruments'
-import Challenge, { pullScore } from './components/Challenge/Challenge'
+import Challenge, { pullScore, updateColor } from './components/Challenge/Challenge'
 
 // noteSequence is an array. First value is the note sequence to be played, second is the duration of the click
 var noteSequence = [["C4", ["D4", "E4", "F4"], "G4", ["A4", "G4"]], "4n"]
@@ -12,7 +12,7 @@ var noteSequence = [["C4", "D4", "G4", "A4"], "4n"]
 // var noteSequence = [[["A4", "G4"], ["A4", "G4"], "G4", ["A4", "B4", "C5"]], "4n"]
 // var noteSequence = [[["A4", "G4", "D4", "G4"], ["A4", "G4", "D4", "G4"], ["A4", "G4", "D4", "G4"], ["A4", "G4", "D4", "G4"]], "4n"]
 
-var data, cmd, channel, type, note, midi, frequency, velocity, currentNote, currentBeat, currentMeasure = -1.25, currentScore = 0;
+var data, cmd, channel, type, note, midi, frequency, velocity, currentNote, currentBeat, currentMeasure = -1.25, currentScore = 0, visualNotes = [], currentVisualNote, visualNoteCounter;
 
 var circle = document.getElementById('circle');
 
@@ -52,7 +52,7 @@ function onMIDIMessage(event) {
   // console.log('MIDI data', data); // MIDI data [144, 63, 73]
   cmd = data[0] >> 4,
   channel = data[0] & 0xf,
-  type = data[0] & 0xf0, // channel agnostic message type. Thanks, Phil Burk.
+  type = data[0] & 0xf0, // channel agnostic message type.
   note = data[1],
   frequency = frequencyFromNoteNumber(note)
   velocity = data[2];
@@ -111,10 +111,12 @@ function rhythmicAccuracy(timePlayed, noteDuration){
     case 1:
       if (decimal >= 3.792 || decimal <= 0.208){
         currentScore++;
+        currentVisualNote.setStyle({strokeStyle: "green", fillStyle: "green"})
+        updateColor(visualNotes)
         console.log("QUARTER", decimal)
-        circle.style.backgroundColor = "blue";
       } else {
-        circle.style.backgroundColor = "red";
+        currentVisualNote.setStyle({strokeStyle: "red", fillStyle: "red"})
+        updateColor(visualNotes)
       }
       break;
     // eighth notes
@@ -122,9 +124,11 @@ function rhythmicAccuracy(timePlayed, noteDuration){
       if (decimal >= 3.792 || decimal <= 0.208 || (decimal >= 1.792 && decimal <= 2.208) ){
         currentScore++;
         console.log("EIGHTH", decimal)
-        circle.style.backgroundColor = "green";
+        currentVisualNote.setStyle({strokeStyle: "green", fillStyle: "green"});
+        updateColor(visualNotes)
       } else {
-        circle.style.backgroundColor = "red";
+        currentVisualNote.setStyle({strokeStyle: "red", fillStyle: "red"});
+        updateColor(visualNotes)
       }
       break;
     // triplets
@@ -153,16 +157,16 @@ function rhythmicAccuracy(timePlayed, noteDuration){
 
 function noteOn(midiNote, velocity, frequency) {
   polySynth.triggerAttack(frequency, null, velocity)
+  let timeTriggered = Tone.Transport.position;
 
   // pitchAccuracy(midiNote);
   // rhythmicAccuracy(Tone.Transport.position, noteDuration());
 
 // ONLY RUN IF noteSetterLoop is currently running
 // if (seq.state === 'started'){
-//
 // }
   if (pitchAccuracy(midiNote)) {
-    rhythmicAccuracy(Tone.Transport.position, noteDuration())
+    rhythmicAccuracy(timeTriggered, noteDuration())
   }
 }
 
@@ -194,14 +198,20 @@ function loopCreator(notes){
     } else {
       currentBeat = Number(beat);
     }
+    // redefines currentNote
     currentNote = note;
+    currentVisualNote = visualNotes[visualNoteCounter];
+    visualNoteCounter++;
+    // console.log(visualNoteCounter, currentVisualNote)
   }, notes, noteSequence[1]);
 
   return noteSetterLoop;
 }
 
-export const startSequence = function(notesToPlay, bpm, numCorrect){
-  currentScore = 0;
+export const startSequence = function(notesToPlay, bpm, numCorrect, vexflowNotes){
+  // resets current score when restarting game
+  currentScore = 0, visualNoteCounter = 0;
+  visualNotes = vexflowNotes;
   var noteSetterLoop = loopCreator(notesToPlay)
   noteSequence[0] = notesToPlay;
   Tone.Transport.bpm.value = bpm;
@@ -211,13 +221,13 @@ export const startSequence = function(notesToPlay, bpm, numCorrect){
   // slight offset equal to bpm/4800 (approx. 1/5th of a sixteenth note, so that the currentNote gets re-assigned slightly ahead of the metronome)
   noteSetterLoop.start(startingPoint-offsetSeconds);
   Tone.Transport.start();
-  console.log(seq)
+  // console.log(seq)
   seq.stop(endTime);
   noteSetterLoop.stop(endTime);
   Tone.Transport.scheduleOnce(function(){
     pullScore(currentScore)
     // numCorrect = currentScore
-    // console.log("SCORE", numCorrect)
+    console.log("VISUAL NOTES", visualNotes)
   }, endTime)
 }
 

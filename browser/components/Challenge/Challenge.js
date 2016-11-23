@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import { startSequence, stopSequence } from '../../piano_hero';
 
 import tonal from 'tonal';
+import Vex from 'vexflow';
 
 // this function is defined and exported outside of the component because we need startSequence to be able to update the state
 // is there a way to export a dispatch function so that we're doing it through the store? is that a better practice than this approach?
@@ -9,13 +10,21 @@ export function pullScore(numCorrect){
   this.setState({numCorrect})
 }
 
+export function updateColor(vexNotes){
+  this.setState({vexNotes})
+}
+
+var vexNotes;
+
 export default class Challenge extends Component {
     constructor(){
       super()
       this.state = {
-        numCorrect: null
+        numCorrect: null,
+        vexNotes: []
       }
       pullScore = pullScore.bind(this);
+      updateColor = updateColor.bind(this);
     }
 
     scorePercentage(notes){
@@ -33,7 +42,59 @@ export default class Challenge extends Component {
     // }
 
     componentDidMount(){
+      var VF = Vex.Flow;
+      var div = document.getElementById("staff")
+      var renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
+
+      renderer.resize(500, 200);
+      var context = renderer.getContext();
+      context.setFont("Arial", 10, "").setBackgroundFillStyle("#eed");
+
+      var stave = new VF.Stave(10, 40, 400);
+
+      stave.addClef("treble").addTimeSignature("4/4");
+
+      stave.setContext(context).draw();
+
+      this.state.vexNotes = [
+        // A quarter-note C.
+        new VF.StaveNote({clef: "treble", keys: ["c/4"], duration: "q" }),
+
+        // A quarter-note D.
+        new VF.StaveNote({clef: "treble", keys: ["d/4"], duration: "q" }),
+
+        // A quarter-note rest. Note that the key (b/4) specifies the vertical position of the rest.
+        // new VF.StaveNote({clef: "treble", keys: ["b/4"], duration: "qr" }),
+        new VF.StaveNote({clef: "treble", keys: ["d/4"], duration: "q" }),
+
+        new VF.StaveNote({clef: "treble", keys: ["c/4"], duration: "8" }),
+        new VF.StaveNote({clef: "treble", keys: ["c/4"], duration: "8" })
+      ];
+
+      // notes.forEach(note => note.setStyle({strokeStyle: "blue", fillStyle: "blue"}))
+
+      // console.log(this.state.vexNotes, this.state.vexNotes[0].setStyle)
+
+
+      var beams = VF.Beam.generateBeams(this.state.vexNotes);
+
+      this.state.vexNotes.forEach(note => note.setStyle({strokeStyle: "blue", fillStyle: "blue"}))
+
+      Vex.Flow.Formatter.FormatAndDraw(context, stave, this.state.vexNotes);
+      beams.forEach(function(b) {b.setContext(context).draw()})
+
+      // Create a voice in 4/4 and add above notes
+      // var voice = new VF.Voice({num_beats: 4,  beat_value: 4});
+      // voice.addTickables(notes);
+      //
+      // // Format and justify the notes to 400 pixels.
+      // var formatter = new VF.Formatter().joinVoices([voice]).format([voice], 400);
+      //
+      // // Render voice
+      // voice.draw(context, stave);
+
     }
+
 
     render() {
       let scoreCounter;
@@ -44,15 +105,18 @@ export default class Challenge extends Component {
         )
       }
 
-      console.log(this.props)
+      // console.log("PROPS", this.props)
+      console.log("STATE", this.state)
 
         return (
         <div>
-          <button type="button" name="button" id="startButton" onClick={() => startSequence(["C3","C3","C3","D3","E3","F3"], 80, this.state.numCorrect)}>START</button>
+          <button type="button" name="button" id="startButton" onClick={() => startSequence(["C3", "D3", "D3", ["C3", "C3"]], 80, this.state.numCorrect, this.state.vexNotes)}>START</button>
           <button type="button" name="button" id="stopButton" onClick={stopSequence}>STOP</button>
           <div id="circle"></div>
 
         {scoreCounter}
+
+        <div id="staff"></div>
         </div>
         )
     }
