@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import { NavbarMenuContainer } from './NavbarContainer'
 
 // Material theme
@@ -36,7 +36,7 @@ export default class Navbar extends React.Component {
 
   render(props) {
     return (
-      <Toolbar id="navbar" style={{backgroundColor: '#2b4b91'}}>
+      <Toolbar id="navbar" style={{backgroundColor: '#b61f1f', opacity: "0.9", height: "70px"}}>
         <ToolbarGroup>
           <div className="navbar-item">
             <i id="drawer-icon" className="material-icons" hoverColor="#00BCD4" onClick={this.handleToggle}>view_headline</i>
@@ -45,15 +45,13 @@ export default class Navbar extends React.Component {
               width={200}
               onRequestChange={(open) => this.setState({open})}
               open={this.state.open}>
-              <MenuItem onClick={this.handleClose}>Lesson 1</MenuItem>
+              <MenuItem onClick={this.handleClose}>User Page</MenuItem>
               <MenuItem onClick={this.handleClose}>Lesson 2</MenuItem>
             </Drawer>
-          </div>
-        </ToolbarGroup>
-        <ToolbarGroup style={centerText}>
-          <Link to="/">
-            <ToolbarTitle style={toolbarText} text="MusoLingo" />
+            <Link to="/">
+              <img id="navbar-logo" src="/images/logo-white.png" />
           </Link>
+          </div>
         </ToolbarGroup>
         <NavbarMenuContainer { ...props } />
       </Toolbar>

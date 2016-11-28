@@ -16,7 +16,6 @@ customUserRoutes.get('/', (req,res,next) => {
 		.catch(next);
 });
 
-
 // how to set addresses & creditcard ?
 customUserRoutes.post('/', (req,res,next) => {
 	userModel.create(req.body)
@@ -28,19 +27,12 @@ customUserRoutes.post('/', (req,res,next) => {
 
 customUserRoutes.get('/:id', function(req, res, next){
 	userModel.findOne({
-		where: { id: req.params.id },
-		include: [
-			{ model: addressModel, as: 'shipping_address', required: false },
-			{ model: addressModel, as: 'billing_address', required: false },
-			{ model: creditCardModel, required: false },
-			{ model: orderModel, include: [{model: lineItem, include: [{model: productModel, required: false}], required: false}], required: false }
-		]
+		where: { id: req.params.id }
 	})
 	.then(result => res.send(result))
 	.catch(next);
 });
 
-// how to update addresses & creditcard ?
 customUserRoutes.put('/:id', (req,res,next) => {
 	userModel.findById(req.params.id)
 		.then(result => result.update(req.body))
@@ -68,6 +60,17 @@ customUserRoutes.get('/:userId/orders', function(req, res, next){
 	.catch(next);
 });
 
+customUserRoutes.post('/keys/:id', (req, res, next) => {
+	userModel.findById(req.params.id)
+		.then(user => user.update(
+			{completed: {
+				quizzes: user.completed.quizzes,
+				lessons: user.completed.lessons,
+				keys: user.completed.keys + req.body.keysToAdd
+			}}
+		))
+		.then(updatedUser => {console.log(req.body); res.send(updatedUser)})
+})
 
 // // Epilogue will automatically create standard RESTful routes
 // const users = epilogue.resource({

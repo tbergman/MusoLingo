@@ -21,14 +21,15 @@ if (! pkg.isProduction) {
 	// Dev environment variables
 	// require('dotenv').config();
 }
+
 module.exports = app
 // // We'll store the whole session in a cookie
-// .use(require('cookie-session') ({
-//   name: 'session',
-//   keys: [process.env.SESSION_SECRET || 'an insecure secret key'],
-// }))
+.use(require('cookie-session') ({
+	name: 'session',
+	keys: [process.env.SESSION_SECRET || 'an insecure secret key']
+}))
 .use(session({
-	secret: 'superSecret'
+	secret: 'anotherwordfortongs'
 }))
 
 // Body parsing middleware
@@ -42,6 +43,11 @@ module.exports = app
 // Serve static files from ../public
 .use(express.static(resolve(__dirname, '..', 'public')))
 .use(express.static(resolve(__dirname, '..', 'node_modules/bootstrap/dist/css')))
+.use(express.static(resolve(__dirname, '..', 'node_modules/aos/dist')))
+.use(express.static(resolve(__dirname, '..', 'node_modules/react-threejs')))
+.use(express.static(resolve(__dirname, '..', 'public/sounds')))
+.use(express.static(resolve(__dirname, '..', 'node_modules/beautiful-piano/dist')))
+
 
 // Serve our api
 .use('/api', require('./api'))

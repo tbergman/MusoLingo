@@ -6,70 +6,142 @@ import RandomTrebleNote from '../vexflow/randomtreblenote';
 import RandomTrebleInterval from '../vexflow/randomtrebleinterval';
 import RandomChord from '../vexflow/randomchord';
 import RandomRhythmNote from '../vexflow/randomrhythmnote';
+import RandomBassNote from '../vexflow/randombassnote';
 import { getNoteName, vexToMidi, calculateInterval, randomIntervals, randomNoteName, randomOtherNoteNames, randomTriad, randomOtherTriads, randomNoteDuration, randomOtherNoteDurations } from '../../utils';
-import  Vex from 'vexflow';
+import  Vex from 'vexflow'
 
 const styles = {
   block: {
     maxWidth: 250,
   },
   radioButton: {
-    marginBottom: 10
+    marginBottom: 10,
+    fill: "red"
   },
 };
 
-const RadioButtonExampleSimple = ({questionType}) => {
-  console.log(questionType);
-  if (questionType === "guessNoteName"){
-      var questionComponent = RandomTrebleNote;
-      var correct = randomNoteName(56, 75);
-      var incorrect = randomOtherNoteNames(correct, 56, 67);
-      console.log('correct', correct);
-  } else if (questionType === "guessInterval"){
-      questionComponent = RandomTrebleInterval;
-      var lownote = randomNoteName(56, 75);
-      var highnote = randomNoteName(vexToMidi(lownote), vexToMidi(lownote)+11);
-      var intervalNotes = [lownote, highnote];
-      correct = calculateInterval(intervalNotes);
-      incorrect = randomIntervals(correct);
-      console.log('correct', correct);
-  } else if (questionType === "guessChordName"){
-      questionComponent = RandomChord;
-      var correctArr = randomTriad(56, 75);
-      correct = correctArr[1];
-      var correctChord = correctArr[0];
-      incorrect = [];
-      var incorrectChords = randomOtherTriads(correctArr[1]);
-      incorrectChords.forEach(chord => incorrect.push(chord));
-      console.log('correct', correct);
-  } else if (questionType === 'rhythmNote'){
-      questionComponent = RandomRhythmNote;
-      correct = randomNoteDuration();
-      incorrect = randomOtherNoteDurations(correct);
+var questionComponent, correct, incorrect, lownote, highnote, intervalNotes, correctChord, buttonsArray, rightAnswerPosition, index, answered;
+
+export default class MultipleChoiceQuestion extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      type: this.props.questionType,
+      answered: false,
+      correctAnswer: '',
+      userNumCorrect: 0
+    }
+    this.onAnswerSelection = this.onAnswerSelection.bind(this);
   }
-  let rightAnswerPosition = Math.floor(Math.random() * 4);
-  let buttonsArray = ['', '', '', ''];
-  let index = 0;
-  return (
-    <div>
-      <div className="sheetmusic">
+
+  componentWillMount() {
+    $("#beathoven-good-job").addClass("bad-job")
+    answered = false;
+    switch (this.props.questionType) {
+      case "guessNoteName":
+        questionComponent = RandomTrebleNote;
+        correct = randomNoteName(56, 75);
+        incorrect = randomOtherNoteNames(correct, 56, 67);
+        this.setState({ correctAnswer: correct })
+        correct = getNoteName(correct);
+        break;
+      case "guessBassNoteName":
+        questionComponent = RandomBassNote;
+        correct = randomNoteName(37, 56);
+        incorrect = randomOtherNoteNames(correct, 37, 48);
+        this.setState({ correctAnswer: correct })
+        correct = getNoteName(correct);
+        break;
+      case "guessInterval":
+        questionComponent = RandomTrebleInterval;
+        lownote = randomNoteName(56, 75);
+        highnote = randomNoteName(vexToMidi(lownote), vexToMidi(lownote) + 11);
+        intervalNotes = [lownote, highnote];
+        correct = calculateInterval(intervalNotes);
+        incorrect = randomIntervals(correct);
+        this.setState({correctAnswer: correct})
+        break;
+      case "guessBassInterval":
+        questionComponent = RandomTrebleInterval;
+        lownote = randomNoteName(37, 56);
+        highnote = randomNoteName(vexToMidi(lownote), vexToMidi(lownote) + 11);
+        intervalNotes = [lownote, highnote];
+        correct = calculateInterval(intervalNotes);
+        incorrect = randomIntervals(correct);
+        this.setState({correctAnswer: correct})
+        break;
+      case "guessChordName":
+        questionComponent = RandomChord;
+        var correctArr = randomTriad(56, 75);
+        correct = correctArr[1];
+        correctChord = correctArr[0];
+        incorrect = [];
+        var incorrectChords = randomOtherTriads(correctArr[1]);
+        incorrectChords.forEach(chord => incorrect.push(chord));
+        this.setState({ correctAnswer: correct })
+        break;
+      case "rhythmNote":
+        questionComponent = RandomRhythmNote;
+        correct = randomNoteDuration();
+        incorrect = randomOtherNoteDurations(correct);
+        correct = getNoteName(correct);
+        console.log(correct);
+      default:
+        console.log("No question type defined")
+    }
+  }
+
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   return nextProps.userNumCorrect === nextState.userNumCorrect;
+  // }
+
+  onAnswerSelection(rightAnswerPosition, idx) {
+    answered = true;
+    let answerArr = ["#mca-0", "#mca-1", "#mca-2", "#mca-3"]
+    let divArr = ["#radio0", "#radio1", "#radio2", "#radio3"]
+
+    let correct = answerArr.splice(rightAnswerPosition, 1);
+    let incorrect = answerArr;
+    let selected = "#mca-" + idx;
+    if (idx !== rightAnswerPosition) $(selected).addClass("wrong-answer")
+    else {
+      this.props.addKey(this.props.user.id, 1)
+      $("#beathoven-good-job").removeClass("bad-job")
+      // if (idx % 2 !== 0) $("body").addClass("addKeyFlip")
+      // else $("body").addClass("addKey")
+    }
+    $(correct[0]).addClass("right-answer")
+    answered = true;
+  }
+
+  render() {
+    var {correctAnswer, type} = this.state;
+    rightAnswerPosition = Math.floor(Math.random() * 4);
+    buttonsArray = ['', '', '', ''];
+    index = 0;
+
+    return (
+      <div id="mc-question-body">
+        <div className="sheetmusic">
+          {
+            React.createElement(questionComponent, {note: correctAnswer, type, intervalNotes, chord: correctChord})
+          }
+        </div>
         {
-          React.createElement(questionComponent, {note: correct, questionType, intervalNotes, chord: correctChord, rhythmnote: correct})
+          incorrect.length && buttonsArray.map((button, idx) => {
+            let correctness = rightAnswerPosition === idx ? correct : incorrect[index++];
+            console.log("correct answer: ", correct);
+            return (
+              <div id={`radio${idx}`} key={idx}
+                onClick={() => { (answered) ? null : this.onAnswerSelection(rightAnswerPosition, idx) } }>
+                <div id={`mca-${idx}`} className="multiple-choice-ans" key={idx}>{correctness}</div>
+              </div>
+            )
+          })
         }
       </div>
-      {/* MULTIPLE CHOICE BUTTONS */}
-      <RadioButtonGroup name="shipSpeed" defaultSelected="1">
-      {
-        buttonsArray.map((button, idx) => {
-          let correctness = rightAnswerPosition === idx ? correct : incorrect[index++];
-          return (
-            <RadioButton value={idx} label={correctness} style={styles.radioButton} />
-          )
-        })
-      }
-      </RadioButtonGroup>
-    </div>
     )
-};
+  }
 
-export default RadioButtonExampleSimple;
+}
