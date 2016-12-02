@@ -17,7 +17,7 @@ export const durationParser = function(note){
   }
 }
 
-// takes an array of all the notes, and separates them into subarrays of notes, each of which will constitute one measure
+// takes an array of all the notes, and separates them into subarrays of notes, each of which will constitute one measure. i.e. turns notes into measures
 export const separateMeasures = function(staffNotes){
   var arrayOfMeasures = [], noteCount = 0, index = 0;
   while (index < staffNotes.length){
@@ -41,7 +41,7 @@ export const separateMeasures = function(staffNotes){
     arrayOfMeasures.push(singleMeasure)
     noteCount = 0;
   }
-    return arrayOfMeasures;
+  return arrayOfMeasures;
 }
 
 export const separateMeasuresDuringGame = function(staffNotes){
@@ -69,7 +69,17 @@ export const separateMeasuresDuringGame = function(staffNotes){
   return arrayOfMeasures;
 }
 
-// looks at the number of measures and creates a corresponding number of staves
+// one 'line' = 4 measures
+export const separateByFour = function (allMeasures){
+  let arrayOfLines = [];
+  for (let i = 0; i < allMeasures.length; i+=4){
+    arrayOfLines.push(allMeasures.slice(i,i+4))
+  }
+  return arrayOfLines
+}
+
+
+// looks at the number of note measures and creates a corresponding number of staves; a stave is an actual measure
 export const staveCreator = function(arrayOfMeasures){
   // console.log("INSIDE STAVE CREATOR", arrayOfMeasures)
   let staveArray = [];
