@@ -54,6 +54,7 @@ export const separateMeasuresDuringGame = function(staffNotes){
       if (noteCount <= 4){
         if (staffNotes[index].accidental !== undefined){
           singleMeasure.push(staffNotes[index].addAccidental(0, new Vex.Flow.Accidental(`${staffNotes[index].accidental}`)))
+          // change to dots??
         } else if (staffNotes[index].dot === true){
           singleMeasure.push(staffNotes[index].addDotToAll())
         } else {
@@ -84,7 +85,7 @@ export const staveCreator = function(arrayOfMeasures){
   // console.log("INSIDE STAVE CREATOR", arrayOfMeasures)
   let staveArray = [];
   arrayOfMeasures.forEach((measure, index) => {
-    if (index === 0){
+    if (index % 4 === 0){
       // VF.Stave arguments: canvas x position, y position, width in pixels
       staveArray.push(new Vex.Flow.Stave(10, 0, 350).addClef("treble").addTimeSignature("4/4"))
     } else {

@@ -132,6 +132,8 @@ function noteHit(result){
     }
     else if (result === false) {
       currentVisualNote.color = "#963838";
+      // console.log("CURRENT", currentVisualNote)
+      // console.log("VISUAL NOTES", visualNotes)
       store.dispatch(setNotes(visualNotes))
     }
   }
@@ -178,7 +180,7 @@ function rhythmicAccuracy(timePlayed, noteDuration){
         noteHit(false)
       }
       break;
-    default: console.log("I WAS NOT PREPARED FOR THIS SHIT", noteDuration, decimal)
+    // default: console.log("I WAS NOT PREPARED FOR THIS SHIT", noteDuration, decimal)
   }
 }
 
@@ -192,7 +194,7 @@ function rhythmicAccuracy(timePlayed, noteDuration){
     store.dispatch(setBeat(beat + 1))
     store.dispatch(setMeasure(Math.floor(currentMeasure) + 1))
     // console.log("MEASURE", currentMeasure)
-    console.log(Tone.Transport.position)
+    // console.log(Tone.Transport.position)
   }, [0,1,2,3], noteSequence[1]);
 
   // 2nd loop, which looks at the sequence of notes and sets currentNote and currentBeat
