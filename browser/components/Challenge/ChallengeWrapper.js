@@ -12,7 +12,7 @@ import store from '../../store';
 import tonal from 'tonal';
 import Vex from 'vexflow';
 
-var vexNotes, beams, stave, context, postMount, renderer, staveMeasures, lines, staves, measures, firstRender;
+var vexNotes, beams, stave, context, postMount, renderer, staveMeasures, lines, staves, measures, firstRender, indexCounter = 0;
 
 export default class Challenge extends Component {
     constructor() {
@@ -30,6 +30,10 @@ export default class Challenge extends Component {
         }
       }
       return `${Math.round(this.props.score/totalNotes * 100)}%`;
+    }
+
+    componentWillUpdate(){
+      indexCounter++;
     }
 
     componentDidUpdate(){
@@ -93,16 +97,14 @@ export default class Challenge extends Component {
         musicRender(staveMeasures, noteMeasures, beamArray, context)
       }
 
+      // Math.ceil(this.props.rhythm.measure / 4)
+
       // prepares props for ChallengeStaff children
       // let measures, staves, beams;
       let canvas;
+      // indexCounter++;
       if (this.props.challenges.vexNotes ){
-        // console.log("PRE SEPARATE MEASURES", this.props.challenges.vexNotes)
-        // if (firstRender === false){
-        //   measures = separateMeasures(this.props.challenges.vexNotes)
-        // } else {
-        //   measures =
-        // }
+        // console.log("PRE SEPARATE MEASURES",
         measures = firstRender !== true ? separateMeasures(this.props.challenges.vexNotes) : separateMeasuresDuringGame(this.props.challenges.vexNotes)
 
         // console.log("WRAPPER MEASURES", measures)
@@ -111,11 +113,20 @@ export default class Challenge extends Component {
         beams = separateByFour(beamCreator(measures))
         canvas = lines.map((line, index) => {
           // console.log("INSIDE MAP", line, index, staves)
-          return (
-            <div key={index}>
+          // TRY ONLY updating the key for the relevant line; if you don't change the index for the others, they shouldn't re-render
+          if (index === this.props.currentLine && firstRender === true){
+            return (
+              <div key={indexCounter + index}>
               <ChallengeStaff staffId={index} measures={line} staves={staves[index]} beams={beams[index]}/>
-            </div>
-          )
+              </div>
+            )
+          } else {
+            return (
+              <div key={index}>
+              <ChallengeStaff staffId={index} measures={line} staves={staves[index]} beams={beams[index]}/>
+              </div>
+            )
+          }
         })
         firstRender = true;
         // console.log("INSIDE RENDER", lines, staves, beams)

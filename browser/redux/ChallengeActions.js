@@ -6,6 +6,7 @@ import axios from 'axios';
 export const SET_CHALLENGES = 'SET_CHALLENGES';
 export const SET_SCORE = 'SET_SCORE';
 export const SET_NOTES = 'SET_NOTES';
+export const SET_CURRENTLINE = 'SET_CURRENTLINE';
 
 export const setNotes = (notes) => {
   return {
@@ -18,6 +19,13 @@ export const setScore = (score) => {
   return {
     type: SET_SCORE,
     score
+  }
+}
+
+export const setCurrentLine = (currentLine) => {
+  return {
+    type: SET_CURRENTLINE,
+    currentLine
   }
 }
 
@@ -52,6 +60,15 @@ export const scoreReducer = (state = null, action) => {
       return action.score;
     default:
       return state
+  }
+}
+
+export const currentLineReducer = (state = 0, action) => {
+  switch (action.type) {
+    case SET_CURRENTLINE:
+      return action.currentLine
+    default:
+      return state;
   }
 }
 export const challengesReducer = (state = [], action) => {

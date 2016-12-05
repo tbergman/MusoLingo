@@ -8,7 +8,8 @@ export default class ChallengeStaff extends Component {
   constructor(props){
     super(props)
     this.state = {
-      renderer: null
+      renderer: null,
+      context: null
     }
   }
 
@@ -26,6 +27,7 @@ export default class ChallengeStaff extends Component {
 
       var context = renderer.getContext();
       context.setFont("Arial", 10, "");
+      this.setState({context: context})
 
       musicRender(staves, measures, beams, context)
 
@@ -48,18 +50,20 @@ export default class ChallengeStaff extends Component {
       // }
       // $(`#${staffId}`).empty()
 
+
       // var renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
       // renderer.resize(1350, 150);
 
+      // var context = this.state.renderer.getContext();
+      // context.setFont("Arial", 10, "");
 
-      var context = this.state.renderer.getContext();
-      context.setFont("Arial", 10, "");
+      // context.clearRect(0, 0, this.state.renderer.ctx.width, this.state.renderer.ctx.height);
 
-      // context.clearRect(0, 0, renderer.ctx.width, renderer.ctx.height);
+      this.state.context.clearRect(0, 0, this.state.renderer.ctx.width, this.state.renderer.ctx.height);
 
       notePainter(measures)
 
-      musicRender(staves, measures, beams, context)
+      musicRender(staves, measures, beams, this.state.context)
     }
   }
 

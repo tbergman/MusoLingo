@@ -2,7 +2,7 @@ import tonal from 'tonal';
 import Tone from 'tone';
 import Vex from 'vexflow';
 import store from './store';
-import { setScore, setVexNotes, setNotes } from './redux/ChallengeActions'
+import { setScore, setNotes, setCurrentLine } from './redux/ChallengeActions'
 import { setBeat, setMeasure } from './redux/MetronomeActions'
 import { polySynth, metronome, metronomeGain } from './instruments';
 import { separateMeasures } from './vexparser';
@@ -128,12 +128,14 @@ function noteHit(result){
     if (result === true) {
       currentScore++;
       currentVisualNote.color = "#2BC22E";
+      store.dispatch(setCurrentLine(Math.ceil(currentMeasure / 4)))
       store.dispatch(setNotes(visualNotes))
     }
     else if (result === false) {
       currentVisualNote.color = "#963838";
       // console.log("CURRENT", currentVisualNote)
       // console.log("VISUAL NOTES", visualNotes)
+      store.dispatch(setCurrentLine(Math.ceil(currentMeasure / 4)))
       store.dispatch(setNotes(visualNotes))
     }
   }
@@ -259,6 +261,12 @@ export const startSequence = function(notesToPlay, bpm, vexflowNotes){
   // slight offset equal to bpm/4800 (approx. 1/5th of a sixteenth note, so that the currentNote gets re-assigned slightly ahead of the metronome)
   noteSetterLoop.start(startingPoint-offsetSeconds);
   Tone.Transport.start();
+
+  // Tone.Transport.schedule(function(){
+  //   console.log("ONCE PER MEASURE")
+  //   store.dispatch(setCurrentLine(Math.ceil(currentMeasure / 4)))
+  // }, "1m")
+
   seq.stop(endTime);
   noteSetterLoop.stop(endTime);
   Tone.Transport.scheduleOnce(function(){
